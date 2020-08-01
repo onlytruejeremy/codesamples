@@ -1,185 +1,11 @@
-class DiscountsService {
-  getAllDiscounts(pageIndex, pageSize) {
+getVendorPaginated(size, index, currentUser) {
     return new Promise(executor);
-
     function executor(resolve, reject) {
-      let discounts = null;
+      let orders = null;
       let page = null;
       let totalCount = 0;
-      const procName = "dbo.Discounts_SelectAll";
-      const returnParamMapper = null;
-      dataProvider.executeCmd(
-        procName,
-        inputParamMapper,
-        singleRecordMapper,
-        returnParamMapper,
-        onCompleted
-      );
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("PageIndex", TYPES.Int, pageIndex);
-        sqlParams.input("PageSize", TYPES.Int, pageSize);
-      }
-      function singleRecordMapper(data, set) {
-        if (!discounts) {
-          discounts = [];
-        }
-        totalCount = data.totalCount;
-        delete data.totalCount;
-        discounts.push(data);
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (discounts) {
-          page = new Paged(discounts, pageIndex, pageSize, totalCount);
-          page.pagedItems.forEach(item => {
-            item.images = JSON.parse(item.images);
-          });
-        }
-        resolve(page);
-      }
-    }
-  }
 
-  getAllDiscountsSearch(pageIndex, pageSize, productName) {
-    return new Promise(executor);
-    function executor(resolve, reject) {
-      let discounts = null;
-      let page = null;
-      let totalCount = 0;
-      const procName = "[dbo].[Discounts_SearchAll]";
-      const returnParamMapper = null;
-      dataProvider.executeCmd(
-        procName,
-        inputParamMapper,
-        singleRecordMapper,
-        returnParamMapper,
-        onCompleted
-      );
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("PageIndex", TYPES.Int, pageIndex);
-        sqlParams.input("PageSize", TYPES.Int, pageSize);
-        sqlParams.input("Product", TYPES.NVarChar, productName);
-      }
-      function singleRecordMapper(data, set) {
-        if (!discounts) {
-          discounts = [];
-        }
-        totalCount = data.totalCount;
-        delete data.totalCount;
-        discounts.push(data);
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (discounts) {
-          page = new Paged(discounts, pageIndex, pageSize, totalCount);
-        }
-        resolve(page);
-      }
-    }
-  }
-
-  getById(id) {
-    return new Promise(executor);
-
-    function executor(resolve, reject) {
-      const procName = "dbo.Discounts_Select_ById";
-      const returnParamMapper = null;
-      let discount = null;
-      dataProvider.executeCmd(
-        procName,
-        inputParamMapper,
-        singleRecordMapper,
-        returnParamMapper,
-        onCompleted
-      );
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("Id", TYPES.Int, id);
-      }
-
-      function singleRecordMapper(data, set) {
-        discount = data;
-        discount.images = JSON.parse(discount.images);
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(discount);
-      }
-    }
-  }
-
-  getByCode(code) {
-    return new Promise(executor);
-
-    function executor(resolve, reject) {
-      const procName = "dbo.Discounts_Select_ByCouponCode";
-      const returnParamMapper = null;
-      let discount = null;
-      dataProvider.executeCmd(
-        procName,
-        inputParamMapper,
-        singleRecordMapper,
-        returnParamMapper,
-        onCompleted
-      );
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("CouponCode", TYPES.NVarChar, code);
-      }
-
-      function singleRecordMapper(data, set) {
-        discount = data;
-        discount.images = JSON.parse(discount.images);
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(discount);
-      }
-    }
-  }
-
-  delete(id) {
-    return new Promise(executor);
-    function executor(resolve, reject) {
-      const procName = "dbo.Discounts_Delete_ById";
-      const returnParamMapper = null;
-      dataProvider.executeNonQuery(
-        procName,
-        inputParamMapper,
-        returnParamMapper,
-        onCompleted
-      );
-
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("Id", TYPES.Int, id);
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      }
-    }
-  }
-  getProdsByCreatedBy(size, index, currentUser) {
-    return new Promise(executor);
-
-    function executor(resolve, reject) {
-      let products = null;
-      let page = null;
-      let totalCount = 0;
-      const procName = "dbo.Products_Select_ByCreatedByV2";
+      const procName = "[dbo].[orders_select_vendor_detailed]";
       const returnParamMapper = null;
       dataProvider.executeCmd(
         procName,
@@ -191,155 +17,32 @@ class DiscountsService {
       function inputParamMapper(sqlParams) {
         sqlParams.input("PageSize", TYPES.Int, size);
         sqlParams.input("PageIndex", TYPES.Int, index);
+
         sqlParams.input("CreatedBy", TYPES.Int, currentUser);
       }
 
       function singleRecordMapper(data, set) {
-        if (!products) {
-          products = [];
+        if (!orders) {
+          orders = [];
         }
         totalCount = data.totalCount;
         delete data.totalCount;
-        products.push(data);
+        orders.push(data);
       }
       function onCompleted(err, data) {
         if (err) {
           reject(err);
           return;
         }
-        if (products) {
-          page = new Paged(products, index, size, totalCount);
-        }
-        resolve(page);
-      }
-    }
-  }
-
-  getCreatedBy(size, index, currentUser) {
-    return new Promise(executor);
-
-    function executor(resolve, reject) {
-      let discounts = null;
-      let page = null;
-      let totalCount = 0;
-      const procName = "dbo.Discounts_Select_ByCreatedBy";
-      const returnParamMapper = null;
-      dataProvider.executeCmd(
-        procName,
-        inputParamMapper,
-        singleRecordMapper,
-        returnParamMapper,
-        onCompleted
-      );
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("PageSize", TYPES.Int, size);
-        sqlParams.input("PageIndex", TYPES.Int, index);
-        sqlParams.input("CreatedBy", TYPES.Int, currentUser);
-      }
-
-      function singleRecordMapper(data, set) {
-        if (!discounts) {
-          discounts = [];
-        }
-        totalCount = data.totalCount;
-        delete data.totalCount;
-        discounts.push(data);
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (discounts) {
-          page = new Paged(discounts, index, size, totalCount);
+        if (orders) {
+          page = new Paged(orders, index, size, totalCount);
           page.pagedItems.forEach(item => {
-            item.images = JSON.parse(item.images);
+            item.orderItems = JSON.parse(item.orderItems);
+            item.userAddress = JSON.parse(item.userAddress);
+            item.userInfo = JSON.parse(item.userInfo);
           });
         }
         resolve(page);
       }
     }
   }
-
-  update(model, modifiedby) {
-    return new Promise(executor);
-    function executor(resolve, reject) {
-      const procName = "dbo.Discounts_Update";
-      const returnParamMapper = null;
-      dataProvider.executeNonQuery(
-        procName,
-        inputParamMapper,
-        returnParamMapper,
-        onCompleted
-      );
-      function inputParamMapper(sqlParams) {
-        sqlParams.input("Id", TYPES.Int, model.Id);
-        sqlParams.input("ProductId", TYPES.Int, model.productId);
-        sqlParams.input("CouponCode", TYPES.NVarChar, model.couponCode);
-        sqlParams.input("Title", TYPES.NVarChar, model.title);
-        sqlParams.input("Description", TYPES.NVarChar, model.description);
-        sqlParams.input("Percentage", TYPES.Float, model.percentage);
-        sqlParams.input("ValidFrom", TYPES.DateTime2, model.validFrom);
-        sqlParams.input("ValidUntil", TYPES.DateTime2, model.validUntil);
-        sqlParams.input(
-          "IsRedeemedAllowed",
-          TYPES.Bit,
-          model.isRedeemedAllowed
-        );
-        sqlParams.input("ModifiedBy", TYPES.Int, modifiedby);
-      }
-
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      }
-    }
-  }
-
-  add(model, createdBy) {
-    return new Promise(executor);
-
-    function executor(resolve, reject) {
-      const procName = "dbo.Discounts_Insert";
-      let discountId = null;
-      dataProvider.executeNonQuery(
-        procName,
-        inputParamMapper,
-        returnParamMapper,
-        onCompleted
-      );
-
-      function inputParamMapper(sqlParams) {
-        sqlParams.output("Id", TYPES.Int);
-        sqlParams.input("ProductId", TYPES.Int, model.productId);
-        sqlParams.input("CouponCode", TYPES.NVarChar, model.couponCode);
-        sqlParams.input("Title", TYPES.NVarChar, model.title);
-        sqlParams.input("Description", TYPES.NVarChar, model.description);
-        sqlParams.input("Percentage", TYPES.Float, model.percentage);
-        sqlParams.input("ValidFrom", TYPES.DateTime2, model.validFrom);
-        sqlParams.input("ValidUntil", TYPES.DateTime2, model.validUntil);
-        sqlParams.input("CreatedBy", TYPES.Int, createdBy);
-      }
-
-      function returnParamMapper(returnParams) {
-        _logger(returnParams);
-        if (returnParams) {
-          discountId = returnParams.id;
-        }
-      }
-      function onCompleted(err, data) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(discountId);
-      }
-    }
-  }
-}
-
-const service = new DiscountsService();
-module.exports = service;
