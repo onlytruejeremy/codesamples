@@ -1,0 +1,309 @@
+@RoutePrefix("/api/orders")
+class OrdersController extends BaseController {
+  constructor() {
+    super("OrdersController");
+  }
+  @Route("GET", "vendor")
+  vendorById(req, res, next) {
+    ordersService
+      .getVendorPaginated(req.query.pageSize, req.query.pageIndex, req.user.id)
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "vendor/date")
+  VendorByDate(req, res, next) {
+    ordersService
+      .getVendorByDate(
+        req.query.pageSize,
+        req.query.pageIndex,
+        req.user.id,
+        req.query.dateCreated
+      )
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "vendor/product")
+  VendorByProduct(req, res, next) {
+    ordersService
+      .getVendorByProduct(
+        req.query.pageSize,
+        req.query.pageIndex,
+        req.user.id,
+        req.query.productName
+      )
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+  @Route("GET", "vendor/date&product")
+  VendorByProductAndDate(req, res, next) {
+    ordersService
+      .getVendorByProductAndDate(
+        req.query.pageSize,
+        req.query.pageIndex,
+        req.user.id,
+        req.query.productName,
+        req.query.dateCreated
+      )
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "user/date")
+  userByDate(req, res, next) {
+    ordersService
+      .getUserByDate(
+        req.query.pageSize,
+        req.query.pageIndex,
+        req.user.id,
+        req.query.dateCreated
+      )
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "user/product")
+  userByProduct(req, res, next) {
+    ordersService
+      .getUserByProduct(
+        req.query.pageSize,
+        req.query.pageIndex,
+        req.user.id,
+        req.query.productName
+      )
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+  @Route("GET", "user/date&product")
+  userByProductAndDate(req, res, next) {
+    ordersService
+      .getUserByProductAndDate(
+        req.query.pageSize,
+        req.query.pageIndex,
+        req.user.id,
+        req.query.productName,
+        req.query.dateCreated
+      )
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "user")
+  userPagination(req, res, next) {
+    ordersService
+      .getOrdersUpdated(req.query.pageSize, req.query.pageIndex, req.user.id)
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "pagination")
+  paginate(req, res, next) {
+    ordersService
+      .getAllOrders(req.query.pageSize, req.query.pageIndex)
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", ":id(\\d+)")
+  getById(req, res, next) {
+    ordersService
+      .getById(req.params.id)
+      .then(record => {
+        _debug("Order Retrieved");
+        let baseResponse = null;
+        let code = 200;
+
+        if (record) {
+          baseResponse = new Responses.ItemResponse(record);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("DELETE", ":id(\\d+)")
+  deleteItem(req, res, next) {
+    ordersService
+      .delete(req.params.id)
+      .then(() => {
+        _debug("Order Deleted");
+        const itemResponse = new Responses.SuccessResponse();
+        res.status("200").json(itemResponse);
+      })
+      .catch(err => {
+        res.status("500").json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("GET", "current")
+  paginateById(req, res, next) {
+    ordersService
+      .getCreatedBy(req.query.pageSize, req.query.pageIndex, req.user.id)
+      .then(item => {
+        let baseResponse = null;
+        let code = 200;
+
+        if (item) {
+          baseResponse = new Responses.ItemResponse(item);
+        } else {
+          code = 404;
+          baseResponse = new Responses.ErrorResponse("Records not found");
+        }
+        res.status(code).json(baseResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("PUT", ":id(\\d+)", updateSchema)
+  update(req, res, next) {
+    ordersService
+      .update(req.body, req.user.id)
+      .then(() => {
+        _debug("Order Updated");
+        const itemResponse = new Responses.SuccessResponse();
+        res.status(200).json(itemResponse);
+      })
+      .catch(err => {
+        res.status(500).json(new Responses.ErrorResponse(err));
+      });
+  }
+
+  @Route("POST", "", postSchema)
+  post(req, res, next) {
+    ordersService
+      .add(req.body, req.user.id)
+      .then(orderId => {
+        _debug("Order Added");
+        const itemResponse = new Responses.ItemResponse(orderId);
+        res.status("201").json(itemResponse);
+      })
+      .catch(err => {
+        res.status("500").json(new Responses.ErrorResponse(err));
+      });
+  }
+}
+
+module.exports = { controller: OrdersController };
