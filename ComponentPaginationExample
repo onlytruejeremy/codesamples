@@ -1,0 +1,70 @@
+class DiscountsUsers extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      discountsData: [],
+      totalCount: "",
+      pageSize: "",
+      currentPage: "",
+    };
+  }
+
+  componentDidMount() {
+    discountService
+      .getPaginatedDiscounts(10, 0)
+      .then(this.onPaginatedSuccess)
+      .catch(this.onPaginatedFailure);
+  }
+  onPaginatedSuccess = (response) => {
+    var discounts = response.item.pagedItems;
+    var total = response.item.totalCount;
+    var pSize = response.item.pageSize;
+    var pIndex = response.item.pageIndex;
+
+    this.setState(() => {
+      return {
+        discountsData: discounts.map(this.onMappedDiscounts),
+        totalCount: total,
+        pageSize: pSize,
+        currentPage: pIndex,
+      };
+    });
+  };
+
+  onMappedDiscounts = (discount) => {
+    return <DiscountCard key={discount.id} discount={discount} />;
+  };
+  onPaginatedFailure = (err) => {
+    _logger(err);
+    toast.error("Could Not Load Discounts");
+  };
+  pageChange = (current, pageSize) => {
+    let pSize = pageSize;
+    let pIndex = current - 1;
+    discountService
+      .getPaginatedDiscounts(pSize, pIndex)
+      .then(this.onPaginatedSuccess)
+      .catch(this.onPaginatedFailure);
+  };
+  render() {
+    return (
+      <React.Fragment>
+        <div className="card-body row" style={{ marginTop: "100px" }}>
+          {this.state.discountsData}
+        </div>
+        <Pagination
+          total={this.state.totalCount}
+          pageSize={this.state.pageSize}
+          onChange={this.pageChange}
+          current={this.state.currentPage}
+          locale={localInfo}
+          style={{ margin: "auto", color: "#ab8ce4", borderColor: "#ab8ce4" }}
+          className="col-sm-3"
+        />
+        <ToastContainer />
+      </React.Fragment>
+    );
+  }
+}
+
+export default withRouter(DiscountsUsers);
