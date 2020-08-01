@@ -1,0 +1,108 @@
+ALTER proc [dbo].[orders_select_user_search_productanddate]
+@ProductName nvarchar(50),
+@CreatedBy int,
+@PageIndex int 
+,@PageSize int,
+@DateCreated date
+
+
+as
+
+/*
+
+
+declare 
+@ProductName nvarchar(50) = 'cookies',
+@CreatedBy int = 45,
+@PageIndex int = 0,
+@PageSize int = 10
+
+execute [dbo].[orders_select_user_search_productanddate]
+@ProductName,
+@CreatedBy,
+@PageIndex,
+@PageSize
+
+*/
+begin
+
+Declare @Offset int = @PageIndex * @PageSize
+
+select 
+ve.id,
+ve.name,
+ord.Id,
+ord.Total,
+ord.TrackingCode,
+ord.TrackingUrl,
+ord.ChargeId,
+ord.PaymentAccountId,
+ord.OrderStatus,
+ord.DateCreated,
+userAddress = (
+    SELECT 
+      l.id, 
+      l.lineOne, 
+      l.lineTwo, 
+      l.city, 
+      l.zip, 
+      st.name 
+    FROM 
+      locations AS l 
+      INNER JOIN dbo.states AS st ON l.id = st.id 
+    WHERE 
+      l.id = ord.shippingaddressid FOR json auto
+  ), 
+  userInfo = (
+    SELECT 
+      us.email, 
+      up.firstName, 
+      up.lastName 
+    FROM 
+      users as us 
+      inner join UserProfiles as up on us.id = up.userid 
+    where 
+      us.id = ord.createdby For Json auto
+  ),
+   orderItems = (
+ SELECT 
+     oI.quantity,
+	 oi.OrderId,
+	 inv.basePrice,
+	 p.sku,
+	 p.name,
+	 p.manufacturer,
+	 p.year,
+	 p.description,
+	 p.headline,
+	 p.specifications
+    FROM 
+      dbo.OrderItems AS oI
+      inner join dbo.Inventory as inv on oI.inventoryId = inv.id 
+      inner join dbo.products as p on p.id = inv.productId 
+      where ord.id = oI.orderId 
+	  FOR json auto
+  ),
+  [TotalCount] = COUNT(1) OVER()
+from Vendors as ve
+inner join 
+PaymentAccounts as pa 
+on pa.VendorId = ve.id
+inner join orders as ord
+on ord.PaymentAccountId = pa.Id
+inner join orderitems as oi
+on ord.Id = oi.OrderId
+inner join dbo.Inventory as inv 
+on oi.inventoryid = inv.id
+inner join dbo.products as p 
+on p.id = inv.ProductId
+where (p.name LIKE '%' + @ProductName)
+and ord.CreatedBy = @CreatedBy
+and cast(ord.DateCreated as nvarchar) LIKE '%' + cast(@DateCreated as nvarchar) + '%'
+order by ord.DateCreated
+
+OFFSET @OffSet Rows
+Fetch Next @PageSize Rows ONLY
+
+
+end
