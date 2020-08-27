@@ -1,4 +1,4 @@
-For additional code samples you can check out
+For a live demo. (Will take approximately 20 - 30 seconds to load)
 
-https://github.com/onlytruejeremy/tickettrackerwithauth or go to https://tickettrackertest.herokuapp.com/home
-Still adding features there. It is not mobile optomized right now so use a desktop for the best experience.
+go to https://tickettrackertest.herokuapp.com/home
+It is not mobile optomized right now so use a desktop for the best experience. Currently under development.
