@@ -1,0 +1,71 @@
+const express = require("express");
+const router = express.Router();
+const con = require("../db/db");
+const Joi = require("joi");
+const authenticateToken = require("./middleware/authenticateToken");
+
+router.post("/", authenticateToken, (req, res) => {
+  const { userId, postId } = req.body;
+  console.log(userId, postId);
+  const likeSchema = Joi.object().keys({
+    userId: Joi.number().required(),
+    postId: Joi.number().required(),
+  });
+
+  const result = likeSchema.validate({
+    userId: userId,
+    postId: postId,
+  });
+  const { value, error } = result;
+
+  const valid = error == null;
+  const sql = `call insert_like(?,?)`;
+  if (!valid) {
+    res.status(422).json("Invalid Request");
+  } else {
+    try {
+      con.query(sql, [postId, userId], (err, result) => {
+        if (err) {
+          res.status(500).json("Database Error");
+          throw err;
+        }
+        res.status(201).json("like added");
+      });
+    } catch (err) {
+      res.status(500).json("Database Error");
+    }
+  }
+});
+
+router.delete("/remove", authenticateToken, (req, res) => {
+  const { userId, postId } = req.body;
+  const likeSchema = Joi.object().keys({
+    userId: Joi.number().required(),
+    postId: Joi.number().required(),
+  });
+
+  const result = likeSchema.validate({
+    userId: userId,
+    postId: postId,
+  });
+  const { value, error } = result;
+
+  const valid = error == null;
+  const sql = `call delete_like(?)`;
+  if (!valid) {
+    res.status(422).json("Invalid Request");
+  } else {
+    try {
+      con.query(sql, [postId], (err, result) => {
+        if (err) {
+          res.status(500).json("Database Error");
+          throw err;
+        }
+        res.status(201).json("like removed");
+      });
+    } catch (err) {
+      res.status(500).json("Database Error");
+    }
+  }
+});
+module.exports = router;
