@@ -1,0 +1,185 @@
+const express = require("express");
+const router = express.Router();
+const con = require("../db/db");
+const bcrypt = require("bcrypt");
+const Joi = require("joi");
+const authenticateToken = require("./middleware/authenticateToken");
+// first name and last name in database, returns the userId
+
+router.post("/", (req, res) => {
+  const nameSchema = Joi.object().keys({
+    firstName: Joi.string().min(3).required(),
+    lastName: Joi.string().min(3).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+  });
+
+  const result = nameSchema.validate({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: req.body.password,
+  });
+  const { value, error } = result;
+  const valid = error == null;
+
+  if (!valid) {
+    res.status(422).json("Invalid Request");
+  } else {
+    let sql = `call insert_user(?, ?)`;
+    try {
+      con.query(
+        sql,
+        [req.body.firstName, req.body.lastName],
+        async (err, result) => {
+          if (err) {
+            res.status(500).send("Database Error");
+            throw err;
+          }
+          const id = result[0][0].userId;
+          try {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(req.body.password, salt);
+            let user = {
+              userId: id,
+              email: req.body.email,
+              password: hashedPassword,
+            };
+            let sql = `call insert_login(?, ?, ?)`;
+            con.query(
+              sql,
+              [user.userId, user.email, user.password],
+              (err, result) => {
+                if (err) {
+                  res
+                    .status(500)
+                    .send("Database Error, Likely email already in use.");
+                  throw err;
+                }
+                res.status(201).send("User Registered");
+              }
+            );
+          } catch (error) {
+            console.warn(error);
+            res.status(500).res.send("Server Error");
+          }
+        }
+      );
+    } catch (error) {
+      console.warn(error);
+      res.status(500).send("Server Error");
+    }
+  }
+});
+
+router.get("/:id", authenticateToken, (req, res) => {
+  const userId = req.params.id;
+  const sql = `call get_user(?)`;
+  try {
+    con.query(sql, [userId], (err, result) => {
+      if (err) {
+        res.status(500).send("Database Error");
+        throw err;
+      }
+      res.status(200).json(result[0]);
+    });
+  } catch (error) {
+    res.status(500).send("Server Error");
+  }
+});
+
+// grab all the users
+router.get("/", authenticateToken, (req, res) => {
+  let sql = "call select_users()";
+  try {
+    con.query(sql, (err, result) => {
+      if (err) {
+        res.status(500).send("Database Error");
+        throw err;
+      }
+      res.status(200).json(result[0]);
+    });
+  } catch (error) {
+    console.warn(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+//delete user by id
+router.delete("/:id", authenticateToken, (req, res) => {
+  let sql = `call delete_user(?)`;
+  try {
+    con.query(sql, [req.params.id], (err, result) => {
+      if (err) {
+        res.status(500).send("Database Error");
+        throw err;
+      }
+      res.status(200).json("User Deleted");
+    });
+  } catch (error) {
+    console.warn(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+//update user by the id
+router.put("/", authenticateToken, async (req, res) => {
+  const nameSchema = Joi.object().keys({
+    firstName: Joi.string().min(3).required(),
+    lastName: Joi.string().min(3).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+  });
+
+  const result = nameSchema.validate({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: req.body.password,
+  });
+  const { value, error } = result;
+  const valid = error == null;
+
+  const {
+    firstName,
+    lastName,
+    userId,
+    userLoginsId,
+    email,
+    password,
+  } = req.body;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  let sql = `call update_user_name(?,?,?)`;
+  let sqlTwo = `call update_user_login(?,?,?)`;
+
+  if (!valid) {
+    res.status(422).json("Invalid Request");
+  } else {
+    try {
+      con.query(sql, [userId, firstName, lastName], (err, result) => {
+        if (err) {
+          res.status(500).send("Database Error");
+          throw err;
+        }
+        con.query(
+          sqlTwo,
+          [userLoginsId, email, hashedPassword],
+          (err, result) => {
+            if (err) {
+              res.status(500).send("Database Error");
+              throw err;
+            }
+            res.status(200).json("account updated");
+          }
+        );
+      });
+    } catch (error) {
+      console.warn(error);
+      res.status(500).send("Server Error");
+    }
+  }
+});
+
+module.exports = router;
