@@ -1,0 +1,87 @@
+// question 1, a and b = sauvignon blanc or bordeaux
+//c and d = merlot and malbec
+
+//question 2 a moscato, riesling and white zinfandel
+//c sauvignon blanc
+
+//question 3 a chardonnay, b  Cabernet Sauvignon, c pinot noir, d pinot grigio or sauvignon blanc
+const question1Select = document.querySelector("#q1");
+const question1 = question1Select.addEventListener("change", (e) => {
+  e.preventDefault();
+  q1(e.target.value);
+});
+
+const question2Select = document.querySelector("#q2");
+const question2 = question2Select.addEventListener("change", (e) => {
+  e.preventDefault();
+  q2(e.target.value);
+});
+
+const question3Select = document.querySelector("#q3");
+const question3 = question3Select.addEventListener("change", (e) => {
+  e.preventDefault();
+  q3(e.target.value);
+  displayAnswer();
+});
+
+let answers = [];
+const q1 = (answer) => {
+  if (answer == 1) {
+    answers.push("Sauvignon Blanc");
+    answers.push("Bordeaux");
+  }
+  if (answer == 2) {
+    answers.push("Merlot");
+    answers.push("Malbec");
+  }
+};
+
+const q2 = (answer) => {
+  if (answer == 1) {
+    answers.push("Moscato");
+    answers.push("Riesling");
+    answers.push("White Zinfandel");
+  }
+  if (answer == 2) {
+    answers.push("Sauvignon Blanc");
+  }
+};
+
+const q3 = (answer) => {
+  if (answer == 1) {
+    answers.push("Chardonnay");
+  }
+  if (answer == 2) {
+    answers.push("Cabernet Sauvignon");
+  }
+  if (answer == 3) {
+    answers.push("Pinot Noir");
+  }
+  if (answer == 4) {
+    answers.push("Pinot Grigio");
+  }
+};
+
+const answerDisplay = document.querySelector(".answerSection");
+
+const displayAnswer = () => {
+  const toDisplay = answers.map((item) => {
+    return `<p class="col-text">${item}</p>`;
+  });
+  let removeDup = toDisplay.filter((item, index) => {
+    return toDisplay.indexOf(item) !== index;
+  });
+  removeDup;
+  answerDisplay.innerHTML = `<section class="answers">
+        <div class="two-col">
+          <div class="col-left bg-red">
+            <p class="col-text">Reccomendations:</p>
+          </div>
+          <div class="col-right bg-black alt-flex">
+            ${toDisplay.join(" ")}
+          </div>
+        </div>`;
+  $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+  const quiz = document.querySelector(".quiz");
+  quiz.style.display = "none";
+};
