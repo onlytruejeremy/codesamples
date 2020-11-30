@@ -1,0 +1,205 @@
+import React, { useState, useEffect } from "react";
+import { Card, Button, Collapse, Form, Fade } from "react-bootstrap";
+import * as postService from "../../services/posts";
+import { ToastContainer, toast } from "react-toastify";
+import "./posts.css";
+import { NavLink } from "react-router-dom";
+function PostCard({
+  postInfo: { firstName, lastName, userId, postId, postBody, date, likes },
+  ...otherProps
+}) {
+  const readableDate = date?.split("T");
+  const [hide, setHide] = useState(true);
+  const [postContent, setPostContent] = useState("");
+  const [editPost, editPostSetter] = useState(false);
+  const [updateMessage, updateMessageSetter] = useState({ msg: "" });
+  const [timeChange, setTimeChange] = useState(false);
+  const [buttons, setButtons] = useState(false);
+  const [likesButtons, setLikesButtons] = useState(false);
+  const [thumbs, setThumbs] = useState(0);
+  useEffect(() => {
+    setPostContent(postBody);
+    updateMessageSetter({ msg: postBody });
+    const userInfo = JSON.parse(localStorage.getItem("tokenInfo")).userInfo
+      .userId;
+    if (userInfo !== userId) {
+      setButtons(true);
+    }
+    if (likes !== null) {
+      const parsed = JSON.parse(likes);
+      setThumbs(parsed.length);
+      const likesCheck = parsed.some((el) => el.userId == userInfo);
+      if (likesCheck) {
+        setLikesButtons(true);
+      }
+    }
+  }, []);
+  const handleDelete = () => {
+    otherProps.del(otherProps.f);
+  };
+
+  const handleEdit = (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+    if (editPost == false) {
+      editPostSetter(true);
+    } else {
+      editPostSetter(false);
+    }
+  };
+
+  const postChange = (e) => {
+    e.preventDefault();
+    updateMessageSetter({ msg: e.target.value });
+  };
+  const publishEdit = (e) => {
+    e.preventDefault();
+    let toSend = [{ msg: updateMessage.msg }];
+    let myToken = JSON.parse(localStorage.getItem("tokenInfo")).accessToken;
+    postService
+      .updatePost(toSend[0].msg, postId, myToken)
+      .then((res) => {
+        toast.success("Post Updated");
+        setPostContent(updateMessage.msg);
+        setTimeChange(true);
+        handleEdit();
+      })
+      .catch((err) => alert(err));
+  };
+  const handleLike = async () => {
+    const payload = {
+      postId: postId,
+      userId: JSON.parse(localStorage.getItem("tokenInfo")).userInfo.userId,
+    };
+    let myToken = JSON.parse(localStorage.getItem("tokenInfo")).accessToken;
+
+    if (likesButtons == true) {
+      const dislikeRes = await postService.removeLike(payload, myToken);
+      if (dislikeRes.data == "like removed") {
+        setLikesButtons(false);
+        setThumbs(thumbs - 1);
+      } else {
+        toast.error("Something Went Wrong");
+      }
+    } else {
+      const likeRes = await postService.addLike(payload, myToken);
+      if (likeRes.data == "like added") {
+        setLikesButtons(true);
+        setThumbs(thumbs + 1);
+      } else {
+        toast.error("Something Went Wrong");
+      }
+    }
+  };
+
+  return (
+    <>
+      <Collapse in={hide} appear={hide}>
+        <Card
+          style={{ width: "50%", marginBottom: "20px" }}
+          bg={"dark"}
+          text={"light text-center"}
+          border={"primary"}
+          style={{ width: "100%", margin: "20px 0" }}
+        >
+          <Card.Header className="text-left">
+            <span className="text-info">
+              <NavLink to={`/profile/${userId}`}>
+                {firstName} {lastName}{" "}
+              </NavLink>
+            </span>
+            {timeChange == false ? (
+              <span className="text-light">
+                {date
+                  ? `${readableDate[0]} ${readableDate[1].substring(
+                      0,
+                      5
+                    )}${"Z"}`
+                  : "Just Now"}
+              </span>
+            ) : (
+              <span className="text-light">Updated Just Now</span>
+            )}
+          </Card.Header>
+
+          {editPost === false ? (
+            <Fade in={hide} appear={hide}>
+              <Card.Body>
+                <Card.Text>{postContent}</Card.Text>
+              </Card.Body>
+            </Fade>
+          ) : (
+            <Collapse in={hide} appear={hide}>
+              <Card.Body>
+                <Card.Text>
+                  <Form onSubmit={publishEdit}>
+                    <Form.Group>
+                      <Form.Control
+                        value={updateMessage.msg}
+                        name="updatePost"
+                        onChange={postChange}
+                        type="text"
+                      />
+                    </Form.Group>
+                    <Button variant="primary" type="submit">
+                      Update
+                    </Button>
+                  </Form>
+                </Card.Text>
+              </Card.Body>
+            </Collapse>
+          )}
+
+          <Card.Footer>
+            {buttons == true ? (
+              likesButtons == true ? (
+                <i
+                  className="fas fa-thumbs-up fa-2x text-info"
+                  onClick={handleLike}
+                >
+                  <small> {thumbs}</small>
+                </i>
+              ) : (
+                <i
+                  className="far fa-thumbs-up fa-2x text-white"
+                  onClick={handleLike}
+                >
+                  <small>{thumbs}</small>
+                </i>
+              )
+            ) : (
+              <i className="fas fa-thumbs-up fa-2x text-secondary">
+                <small> {thumbs}</small>
+              </i>
+            )}
+            {buttons == false ? (
+              <>
+                {editPost == false ? (
+                  <i
+                    class="fas fa-edit fa-2x"
+                    onClick={handleEdit}
+                    style={{ margin: "0 20px" }}
+                  ></i>
+                ) : (
+                  <i
+                    class="far fa-window-close fa-2x"
+                    onClick={handleEdit}
+                    style={{ margin: "0 20px" }}
+                  ></i>
+                )}
+
+                <i class="far fa-trash-alt fa-2x" onClick={handleDelete}></i>
+              </>
+            ) : (
+              ""
+            )}
+          </Card.Footer>
+        </Card>
+      </Collapse>
+      <ToastContainer></ToastContainer>
+    </>
+  );
+}
+
+export default PostCard;
