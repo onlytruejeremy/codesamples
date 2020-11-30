@@ -1,0 +1,14 @@
+CREATE DEFINER=`udcnh6xdferwsjbw`@`%` PROCEDURE `get_friend`(IN userId int)
+BEGIN
+
+   SELECT     friends.friendsId, 
+           friends.userId, 
+           friends.followingId, 
+           users.firstName, 
+           users.lastName 
+FROM       friends 
+INNER JOIN users 
+ON         users.userid = friends.followingid 
+WHERE      friends.userid = userId;
+   
+END
