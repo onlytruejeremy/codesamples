@@ -1,0 +1,24 @@
+CREATE DEFINER=`udcnh6xdferwsjbw`@`%` PROCEDURE `select_friend_posts`(IN userId int)
+BEGIN
+
+   SELECT users.userId, 
+       users.firstName, 
+       users.lastName, 
+       p.postId, 
+       p.postBody, 
+       p.date, 
+       (SELECT Concat('[', Group_concat(Json_object('likesId', likes.likesid, 
+                           'userId', 
+                                   likes.userid) 
+                           SEPARATOR ', '), ']') 
+        FROM   likes 
+        WHERE  likes.postid = p.postid) AS likes 
+FROM   posts AS p 
+       INNER JOIN users 
+               ON p.userid = users.userid 
+       LEFT JOIN likes 
+              ON p.postid = likes.postid 
+		where p.userId = userId
+ORDER  BY p.date DESC;
+   
+END
